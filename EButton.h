@@ -81,7 +81,7 @@
 #define EBUTTON_DEFAULT_CLICK			150
 #endif
 #if defined(EBUTTON_SUPPORT_LONG_PRESS_START) || defined(EBUTTON_SUPPORT_LONG_PRESS_DURING) || defined(EBUTTON_SUPPORT_LONG_PRESS_END)
-#define EBUTTON_DEFAULT_LONG_PRESS		2000
+#define EBUTTON_DEFAULT_LONG_PRESS		1000
 #endif
 // ---------------------------------------------------------------------------------
 // <<<< END OF CONFIGURABLE OPTIONS
