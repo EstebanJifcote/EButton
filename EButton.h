@@ -38,7 +38,7 @@
 #ifndef EBUTTON_H_
 #define EBUTTON_H_
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 // --------------------------- Optional Feature Switches ---------------------------
 // You can disable the features you don't need, to minimize memory footprint
@@ -98,13 +98,27 @@ extern "C" {
 typedef void (*EButtonEventHandler)(EButton&);
 }
 
+typedef byte (*pt2Fnct)(void* pt2Obj, byte param1);
+typedef void (*pt2Fnct2)(void* pt2Obj, byte param1, byte param2);
+
 class EButton {
 public:
-	// Constructor.
-	EButton(byte pin, bool pressedLow = true);
+	// begin for button attached to pin on Arduino
+	void begin(byte pin, bool pressedLow = true);
+	void begin (byte pin, byte address, void* pt2Obj, pt2Fnct pt2Fnct, pt2Fnct2 pt2Fnct2, bool pressedLow = true);
+	
+	// Set pointers to class instance and members 
+	void SetFnct (byte address, void* pt2Obj, pt2Fnct pt2Fnct, pt2Fnct2 pt2Fnct2);
+	   
+    // Read pin
+	byte readPin (byte pin);
+
+	// Set pin mode
+	void SetPinMode (byte pin, byte mode);
 
 	// Debounce time - delay after the first transition, before sampling the next state.
 	void setDebounceTime(byte time);
+
 	// Click time - delay after the button was released, when clicks counting ends.
 	// (Delay before triggering singleClick, doubleClick, or doneClicking event.)
 #if defined(EBUTTON_SUPPORT_DONE_CLICKING) || defined(EBUTTON_SUPPORT_SINGLE_AND_DOUBLE_CLICKS)
@@ -153,6 +167,9 @@ public:
 	// Attached pin number
 	byte getPin();
 
+    // Hardware address of GPIO extender
+	byte getAddress();
+
 	// Number of clicks performed
 	byte getClicks();
 
@@ -177,7 +194,13 @@ private:
 	void transition(unsigned long now);
 
 	// ----- Configuration-specific fields -----
-	byte pin;										// Attached pin
+	byte pin;										       // Attached pin
+	byte address;                                           // GPIO extender address
+	bool gpio_extender;                                    // Button is connected to GPIO extender?
+    void* _pt2Obj;                                         // Pointer to MCP instance
+    byte (*_pt2Fnct)(void* pt2Obj, byte pin);              // pointer to MCP member
+    void (*_pt2Fnct2)(void* pt2Obj, byte pin, byte mode);  // pointer to MCP member
+
 	byte debounceTime = EBUTTON_DEFAULT_DEBOUNCE;	// Debounce time in ms (between 0 and 255)
 #if defined(EBUTTON_SUPPORT_DONE_CLICKING) || defined(EBUTTON_SUPPORT_SINGLE_AND_DOUBLE_CLICKS)
 	unsigned int clickTime = EBUTTON_DEFAULT_CLICK;	// Time the button has to be released in order to complete counting clicks

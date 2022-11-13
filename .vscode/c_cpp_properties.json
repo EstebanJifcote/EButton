@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/steve/.platformio/packages/framework-arduinoespressif8266/cores/esp8266",
+                "/home/steve/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include",
+                "/home/steve/.platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include",
+                "/home/steve/.platformio/packages/framework-arduinoespressif8266/variants/adafruit"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-arm64"
+        }
+    ],
+    "version": 4
+}

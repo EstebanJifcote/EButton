@@ -1,10 +1,60 @@
 #include "EButton.h"
 
-EButton::EButton(byte pin, bool pressedLow) {
+void EButton::begin(byte pin, bool pressedLow) {
 	this->pin = pin;
-	pinMode(pin, pressedLow ? INPUT_PULLUP : INPUT);
+	SetPinMode(pin, pressedLow ? INPUT_PULLUP : INPUT);
+	pressedState = !pressedLow;
+	gpio_extender = false;
+	address = 0;
+	_pt2Obj  = nullptr;
+    _pt2Fnct = nullptr;
+	reset();
+}
+
+void EButton::begin(byte pin, byte address, void* pt2Obj, pt2Fnct pt2Fnct, pt2Fnct2 pt2Fnct2, bool pressedLow) {
+	this->pin = pin;
+	Serial.println("...Setting functions...");
+	Serial.print("pin: ");
+	Serial.print(pin);
+	Serial.print(" gpio_extender: ");
+	Serial.println(gpio_extender);
+	   
+    SetFnct (address, pt2Obj, pt2Fnct, pt2Fnct2);
+
+	SetPinMode(pin, pressedLow ? INPUT_PULLUP : INPUT);
 	pressedState = !pressedLow;
 	reset();
+}
+
+void EButton::SetFnct (byte address, void* pt2Obj, pt2Fnct pt2Fnct, pt2Fnct2 pt2Fnct2) {
+
+    Serial.println("...Setting functions...");
+    if(pt2Obj && pt2Fnct && pt2Fnct2) {
+	  gpio_extender = true;
+	  this->address = address;
+	  _pt2Obj   = pt2Obj;
+	  _pt2Fnct  = pt2Fnct;
+	  _pt2Fnct2 = pt2Fnct2;
+    } else {
+	  gpio_extender = false;
+	  this->address = 0;
+    }
+}  
+
+byte EButton::readPin (byte pin) {
+    //Serial.println ("Button read called ");
+	return (gpio_extender ? _pt2Fnct(_pt2Obj, pin) : digitalRead(pin));
+}
+
+void EButton::SetPinMode (byte pin, byte mode) {
+	Serial.println("Set Pin mode called...");
+	Serial.print ("Pin: ");
+	Serial.print (pin);
+	Serial.print ("Mode: ");
+	Serial.print (mode);
+	Serial.println();
+
+	gpio_extender ? _pt2Fnct2(_pt2Obj, pin, mode): pinMode (pin, mode);
 }
 
 void EButton::setDebounceTime(byte time) {
@@ -77,6 +127,10 @@ byte EButton::getPin() {
 	return pin;
 }
 
+byte EButton::getAddress() {
+	return address;
+}
+
 byte EButton::getClicks() {
 	return clicks;
 }
@@ -121,7 +175,7 @@ void EButton::tick() {
 	}
 
 	// Sample button state
-	buttonPressed = digitalRead(pin) == pressedState;
+	buttonPressed = readPin(pin) == pressedState;
 
 	if (state == EBUTTON_STATE_IDLE) {
 		// If the state was idle
